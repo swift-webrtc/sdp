@@ -1,7 +1,3 @@
 # SDP
 
-A description of this package.
-
-```sh
-swift-format --configuration .swift-format -i -r .
-```
+[SDP](https://tools.ietf.org/html/rfc4566) in Swift.
