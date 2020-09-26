@@ -45,20 +45,20 @@ extension ICECandidate {
   public static func deserialize(from string: String) throws -> Self {
     let fields = string.split(separator: " ").map(String.init)
     guard fields.count >= 8 else {
-      throw SDPError(line: 0, message: "Invalid 'candidate': \(string)")
+      throw SDPError(message: "Invalid candidate: \(string)")
     }
 
     let component = try UInt16(fields[1]).unwrap(
-      or: SDPError(line: 0, message: "Invalid <component-id>: \(fields[1])")
+      or: SDPError(message: "Invalid <component-id>: \(fields[1])")
     )
     let priority = try UInt32(fields[3]).unwrap(
-      or: SDPError(line: 0, message: "Invalid <priority>: \(fields[3])")
+      or: SDPError(message: "Invalid <priority>: \(fields[3])")
     )
     let port = try UInt16(fields[5]).unwrap(
-      or: SDPError(line: 0, message: "Invalid <port>: \(fields[5])")
+      or: SDPError(message: "Invalid <port>: \(fields[5])")
     )
     let type = try ICECandidate.Kind(rawValue: fields[7]).unwrap(
-      or: SDPError(line: 0, message: "Invalid <cand-type>: \(fields[7])")
+      or: SDPError(message: "Invalid <cand-type>: \(fields[7])")
     )
 
     var relatedAddress: String?
@@ -66,12 +66,12 @@ extension ICECandidate {
     if fields.count > 8 {
       if fields[8] == "raddr" {
         guard fields.count >= 12 else {
-          throw SDPError(line: 0, message: "Invalid <rel-addr>: \(fields)")
+          throw SDPError(message: "Invalid <rel-addr>: \(fields)")
         }
 
         relatedAddress = fields[9]
         relatedPort = try UInt16(fields[11]).unwrap(
-          or: SDPError(line: 0, message: "Invalid <rel-port>: \(fields[11])")
+          or: SDPError(message: "Invalid <rel-port>: \(fields[11])")
         )
       }
     }
@@ -102,18 +102,18 @@ extension ExtMap {
   public static func deserialize(from string: String) throws -> Self {
     let fields = string.split(separator: " ").map(String.init)
     guard fields.count >= 2 else {
-      throw SDPError(line: 0, message: "Invalid 'extmap': \(string)")
+      throw SDPError(message: "Invalid extmap: \(string)")
     }
 
     let parts = fields[0].split(separator: "/").map(String.init)
     guard let value = Int(parts[0]), value >= 1, value <= 256 else {
-      throw SDPError(line: 0, message: "Invalid <value>: \(parts[0])")
+      throw SDPError(message: "Invalid <value>: \(parts[0])")
     }
 
     var direction: ExtMap.Direction?
     if parts.count == 2 {
       direction = try ExtMap.Direction(rawValue: parts[1]).unwrap(
-        or: SDPError(line: 0, message: "Invalid <direction>: \(parts[1])")
+        or: SDPError(message: "Invalid <direction>: \(parts[1])")
       )
     }
 
@@ -211,13 +211,13 @@ struct SDPParser {
   /// [RFC4566-section-5.1](https://tools.ietf.org/html/rfc4566#section-5.1)
   mutating func parseProtocolVersion() throws -> Int {
     guard let line = current, line.prefix(2) == "v=" else {
-      throw SDPError(line: index, message: "Invalid v=")
+      throw SDPError(message: "Invalid v=")
     }
 
     // As off the latest draft of the rfc this value is required to be 0.
     // https://tools.ietf.org/html/draft-ietf-rtcweb-jsep-24#section-5.8.1
     guard let version = Int(line.dropFirst(2)), version == 0 else {
-      throw SDPError(line: index, message: "Invalid line: \(line)")
+      throw SDPError(message: "Invalid line: \(line)")
     }
 
     advance()
@@ -231,25 +231,25 @@ struct SDPParser {
   /// [RFC4566-section-5.2](https://tools.ietf.org/html/rfc4566#section-5.2)
   mutating func parseOrigin() throws -> SessionDescription.Origin {
     guard let line = current, line.prefix(2) == "o=" else {
-      throw SDPError(line: index, message: "Invalid o=")
+      throw SDPError(message: "Invalid o=")
     }
 
     let fields = line.dropFirst(2).split(separator: " ").map(String.init)
     guard fields.count == 6 else {
-      throw SDPError(line: index, message: "Invalid line: \(line)")
+      throw SDPError(message: "Invalid line: \(line)")
     }
 
     let sessionID = try UInt64(fields[1]).unwrap(
-      or: SDPError(line: index, message: "Invalid <sess-id>: \(fields[1])")
+      or: SDPError(message: "Invalid <sess-id>: \(fields[1])")
     )
     let sessionVersion = try UInt64(fields[2]).unwrap(
-      or: SDPError(line: index, message: "Invalid <sess-version>: \(fields[2])")
+      or: SDPError(message: "Invalid <sess-version>: \(fields[2])")
     )
     let networkType = try SessionDescription.NetworkType(rawValue: fields[3]).unwrap(
-      or: SDPError(line: index, message: "Invalid <nettype>: \(fields[3])")
+      or: SDPError(message: "Invalid <nettype>: \(fields[3])")
     )
     let addressType = try SessionDescription.AddressType(rawValue: fields[4]).unwrap(
-      or: SDPError(line: index, message: "Invalid <addrtype>: \(fields[4])")
+      or: SDPError(message: "Invalid <addrtype>: \(fields[4])")
     )
 
     advance()
@@ -270,7 +270,7 @@ struct SDPParser {
   /// [RFC4566-section-5.3](https://tools.ietf.org/html/rfc4566#section-5.3)
   mutating func parseSessionName() throws -> String {
     guard let line = current, line.prefix(2) == "s=" else {
-      throw SDPError(line: index, message: "Invalid s=")
+      throw SDPError(message: "Invalid s=")
     }
 
     advance()
@@ -345,14 +345,14 @@ struct SDPParser {
 
     let fields = line.dropFirst(2).split(separator: " ").map(String.init)
     guard fields.count >= 2 else {
-      throw SDPError(line: index, message: "Invalid line: \(line)")
+      throw SDPError(message: "Invalid line: \(line)")
     }
 
     let networkType = try SessionDescription.NetworkType(rawValue: fields[0]).unwrap(
-      or: SDPError(line: index, message: "Invalid <nettype>: \(fields[0])")
+      or: SDPError(message: "Invalid <nettype>: \(fields[0])")
     )
     let addressType = try SessionDescription.AddressType(rawValue: fields[1]).unwrap(
-      or: SDPError(line: index, message: "Invalid <addrtype>: \(fields[1])")
+      or: SDPError(message: "Invalid <addrtype>: \(fields[1])")
     )
 
     advance()
@@ -383,14 +383,14 @@ struct SDPParser {
 
     let parts = line.dropFirst(2).split(separator: ":").map(String.init)
     guard parts.count != 2 else {
-      throw SDPError(line: index, message: "Invalid line: \(line)")
+      throw SDPError(message: "Invalid line: \(line)")
     }
 
     let type = try SessionDescription.Bandwidth.Kind(rawValue: parts[0]).unwrap(
-      or: SDPError(line: index, message: "Invalid <bwtype>: \(parts[0])")
+      or: SDPError(message: "Invalid <bwtype>: \(parts[0])")
     )
     let bandwidth = try UInt64(parts[1]).unwrap(
-      or: SDPError(line: index, message: "Invalid <bandwidth>: \(parts[1])")
+      or: SDPError(message: "Invalid <bandwidth>: \(parts[1])")
     )
 
     advance()
@@ -418,14 +418,14 @@ struct SDPParser {
 
     let fields = line.dropFirst(2).split(separator: " ")
     guard fields.count == 2 else {
-      throw SDPError(line: index, message: "Invalid line: \(line)")
+      throw SDPError(message: "Invalid line: \(line)")
     }
 
     let startTime = try UInt64(fields[0]).unwrap(
-      or: SDPError(line: index, message: "Invalid <start-time>: \(fields[0])")
+      or: SDPError(message: "Invalid <start-time>: \(fields[0])")
     )
     let stopTime = try UInt64(fields[1]).unwrap(
-      or: SDPError(line: index, message: "Invalid <stop-time>: \(fields[1])")
+      or: SDPError(message: "Invalid <stop-time>: \(fields[1])")
     )
 
     advance()
@@ -452,7 +452,7 @@ struct SDPParser {
 
     let fields = line.dropFirst(2).split(separator: " ")
     guard fields.count >= 3 else {
-      throw SDPError(line: index, message: "Invalid line: \(line)")
+      throw SDPError(message: "Invalid line: \(line)")
     }
 
     let interval = try parseTimeUnits(fields[0])
@@ -475,13 +475,13 @@ struct SDPParser {
 
     let fields = line.dropFirst(2).split(separator: " ")
     guard fields.count % 2 == 0 else {
-      throw SDPError(line: index, message: "Invalid line: \(line)")
+      throw SDPError(message: "Invalid line: \(line)")
     }
 
     var timeZones = [SessionDescription.TimeZone]()
     for i in stride(from: 0, to: fields.count, by: 2) {
       let adjustmentTime = try UInt64(fields[i]).unwrap(
-        or: SDPError(line: index, message: "Invalid <adjustment time>: \(fields[i])")
+        or: SDPError(message: "Invalid <adjustment time>: \(fields[i])")
       )
       let offset = try parseTimeUnits(fields[i + 1])
       timeZones.append(.init(adjustmentTime: adjustmentTime, offset: offset))
@@ -579,22 +579,22 @@ struct SDPParser {
 
     let fields = line.dropFirst(2).split(separator: " ").map(String.init)
     guard fields.count >= 4 else {
-      throw SDPError(line: index, message: "Invalid line: \(line)")
+      throw SDPError(message: "Invalid line: \(line)")
     }
 
     // <media>
     let media = try SessionDescription.Media(rawValue: fields[0]).unwrap(
-      or: SDPError(line: index, message: "Invalid <media>: \(fields[0])")
+      or: SDPError(message: "Invalid <media>: \(fields[0])")
     )
     // <port>
     let parts = fields[1].split(separator: "/")
     let port = try UInt16(parts[0]).unwrap(
-      or: SDPError(line: index, message: "Invalid <port>: \(parts[0])")
+      or: SDPError(message: "Invalid <port>: \(parts[0])")
     )
     var range: Int?
     if parts.count > 1 {
       range = try Int(parts[1]).unwrap(
-        or: SDPError(line: index, message: "Invalid <number of ports>: \(parts[1])")
+        or: SDPError(message: "Invalid <number of ports>: \(parts[1])")
       )
     }
     // <proto>
@@ -602,7 +602,7 @@ struct SDPParser {
       .split(separator: "/")
       .map {
         try SessionDescription.Proto(rawValue: String($0)).unwrap(
-          or: SDPError(line: index, message: "Invalid <proto>: \($0)")
+          or: SDPError(message: "Invalid <proto>: \($0)")
         )
       }
 
@@ -634,6 +634,6 @@ struct SDPParser {
         return value
       }
     }
-    throw SDPError(line: index, message: "Invalid time units: \(string)")
+    throw SDPError(message: "Invalid time units: \(string)")
   }
 }

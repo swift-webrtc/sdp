@@ -6,9 +6,9 @@
 //  Copyright © 2020 sunlubo. All rights reserved.
 //
 
+@testable
+import SDP
 import XCTest
-
-@testable import SDP
 
 final class ExtMapTests: XCTestCase {
   let source = "1/sendrecv http://example.com/082005/ext.htm#xmeta short"

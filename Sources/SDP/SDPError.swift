@@ -7,11 +7,9 @@
 //
 
 public struct SDPError: Error {
-  public var line: Int
   public var message: String
 
-  init(line: Int, message: String) {
-    self.line = line
+  public init(message: String) {
     self.message = message
   }
 }

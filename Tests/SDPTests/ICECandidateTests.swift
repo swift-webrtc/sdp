@@ -6,9 +6,9 @@
 //  Copyright © 2020 sunlubo. All rights reserved.
 //
 
+@testable
+import SDP
 import XCTest
-
-@testable import SDP
 
 final class ICECandidateTests: XCTestCase {
   let source = "1 1 UDP 9654321 212.223.223.223 12345 typ srflx raddr 10.216.33.9 rport 54321"
