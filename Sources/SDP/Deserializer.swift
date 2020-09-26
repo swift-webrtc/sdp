@@ -1,10 +1,12 @@
 //
 //  Deserializer.swift
-//  sdp
+//  webrtc-sdp
 //
 //  Created by sunlubo on 2020/9/4.
 //  Copyright © 2020 sunlubo. All rights reserved.
 //
+
+import Core
 
 extension SessionDescription {
 
@@ -46,16 +48,16 @@ extension ICECandidate {
       throw SDPError(line: 0, message: "Invalid 'candidate': \(string)")
     }
 
-    let component = try UInt16(fields[1]).unwrapped(
+    let component = try UInt16(fields[1]).unwrap(
       or: SDPError(line: 0, message: "Invalid <component-id>: \(fields[1])")
     )
-    let priority = try UInt32(fields[3]).unwrapped(
+    let priority = try UInt32(fields[3]).unwrap(
       or: SDPError(line: 0, message: "Invalid <priority>: \(fields[3])")
     )
-    let port = try UInt16(fields[5]).unwrapped(
+    let port = try UInt16(fields[5]).unwrap(
       or: SDPError(line: 0, message: "Invalid <port>: \(fields[5])")
     )
-    let type = try ICECandidate.Kind(rawValue: fields[7]).unwrapped(
+    let type = try ICECandidate.Kind(rawValue: fields[7]).unwrap(
       or: SDPError(line: 0, message: "Invalid <cand-type>: \(fields[7])")
     )
 
@@ -68,7 +70,7 @@ extension ICECandidate {
         }
 
         relatedAddress = fields[9]
-        relatedPort = try UInt16(fields[11]).unwrapped(
+        relatedPort = try UInt16(fields[11]).unwrap(
           or: SDPError(line: 0, message: "Invalid <rel-port>: \(fields[11])")
         )
       }
@@ -110,7 +112,7 @@ extension ExtMap {
 
     var direction: ExtMap.Direction?
     if parts.count == 2 {
-      direction = try ExtMap.Direction(rawValue: parts[1]).unwrapped(
+      direction = try ExtMap.Direction(rawValue: parts[1]).unwrap(
         or: SDPError(line: 0, message: "Invalid <direction>: \(parts[1])")
       )
     }
@@ -237,16 +239,16 @@ struct SDPParser {
       throw SDPError(line: index, message: "Invalid line: \(line)")
     }
 
-    let sessionID = try UInt64(fields[1]).unwrapped(
+    let sessionID = try UInt64(fields[1]).unwrap(
       or: SDPError(line: index, message: "Invalid <sess-id>: \(fields[1])")
     )
-    let sessionVersion = try UInt64(fields[2]).unwrapped(
+    let sessionVersion = try UInt64(fields[2]).unwrap(
       or: SDPError(line: index, message: "Invalid <sess-version>: \(fields[2])")
     )
-    let networkType = try SessionDescription.NetworkType(rawValue: fields[3]).unwrapped(
+    let networkType = try SessionDescription.NetworkType(rawValue: fields[3]).unwrap(
       or: SDPError(line: index, message: "Invalid <nettype>: \(fields[3])")
     )
-    let addressType = try SessionDescription.AddressType(rawValue: fields[4]).unwrapped(
+    let addressType = try SessionDescription.AddressType(rawValue: fields[4]).unwrap(
       or: SDPError(line: index, message: "Invalid <addrtype>: \(fields[4])")
     )
 
@@ -346,10 +348,10 @@ struct SDPParser {
       throw SDPError(line: index, message: "Invalid line: \(line)")
     }
 
-    let networkType = try SessionDescription.NetworkType(rawValue: fields[0]).unwrapped(
+    let networkType = try SessionDescription.NetworkType(rawValue: fields[0]).unwrap(
       or: SDPError(line: index, message: "Invalid <nettype>: \(fields[0])")
     )
-    let addressType = try SessionDescription.AddressType(rawValue: fields[1]).unwrapped(
+    let addressType = try SessionDescription.AddressType(rawValue: fields[1]).unwrap(
       or: SDPError(line: index, message: "Invalid <addrtype>: \(fields[1])")
     )
 
@@ -384,10 +386,10 @@ struct SDPParser {
       throw SDPError(line: index, message: "Invalid line: \(line)")
     }
 
-    let type = try SessionDescription.Bandwidth.Kind(rawValue: parts[0]).unwrapped(
+    let type = try SessionDescription.Bandwidth.Kind(rawValue: parts[0]).unwrap(
       or: SDPError(line: index, message: "Invalid <bwtype>: \(parts[0])")
     )
-    let bandwidth = try UInt64(parts[1]).unwrapped(
+    let bandwidth = try UInt64(parts[1]).unwrap(
       or: SDPError(line: index, message: "Invalid <bandwidth>: \(parts[1])")
     )
 
@@ -419,10 +421,10 @@ struct SDPParser {
       throw SDPError(line: index, message: "Invalid line: \(line)")
     }
 
-    let startTime = try UInt64(fields[0]).unwrapped(
+    let startTime = try UInt64(fields[0]).unwrap(
       or: SDPError(line: index, message: "Invalid <start-time>: \(fields[0])")
     )
-    let stopTime = try UInt64(fields[1]).unwrapped(
+    let stopTime = try UInt64(fields[1]).unwrap(
       or: SDPError(line: index, message: "Invalid <stop-time>: \(fields[1])")
     )
 
@@ -478,7 +480,7 @@ struct SDPParser {
 
     var timeZones = [SessionDescription.TimeZone]()
     for i in stride(from: 0, to: fields.count, by: 2) {
-      let adjustmentTime = try UInt64(fields[i]).unwrapped(
+      let adjustmentTime = try UInt64(fields[i]).unwrap(
         or: SDPError(line: index, message: "Invalid <adjustment time>: \(fields[i])")
       )
       let offset = try parseTimeUnits(fields[i + 1])
@@ -532,7 +534,7 @@ struct SDPParser {
     let key: String
     let value: String?
     if let index = line.firstIndex(of: ":") {
-      key = String(line[line.index(line.startIndex, offsetBy: 2)..<index])
+      key = String(line[line.index(line.startIndex, offsetBy: 2) ..< index])
       value = String(line[line.index(after: index)...])
     } else {
       key = String(line[line.index(line.startIndex, offsetBy: 2)...])
@@ -581,17 +583,17 @@ struct SDPParser {
     }
 
     // <media>
-    let media = try SessionDescription.Media(rawValue: fields[0]).unwrapped(
+    let media = try SessionDescription.Media(rawValue: fields[0]).unwrap(
       or: SDPError(line: index, message: "Invalid <media>: \(fields[0])")
     )
     // <port>
     let parts = fields[1].split(separator: "/")
-    let port = try UInt16(parts[0]).unwrapped(
+    let port = try UInt16(parts[0]).unwrap(
       or: SDPError(line: index, message: "Invalid <port>: \(parts[0])")
     )
     var range: Int?
     if parts.count > 1 {
-      range = try Int(parts[1]).unwrapped(
+      range = try Int(parts[1]).unwrap(
         or: SDPError(line: index, message: "Invalid <number of ports>: \(parts[1])")
       )
     }
@@ -599,7 +601,7 @@ struct SDPParser {
     let protos = try fields[2]
       .split(separator: "/")
       .map {
-        try SessionDescription.Proto(rawValue: String($0)).unwrapped(
+        try SessionDescription.Proto(rawValue: String($0)).unwrap(
           or: SDPError(line: index, message: "Invalid <proto>: \($0)")
         )
       }

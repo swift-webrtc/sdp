@@ -1,6 +1,6 @@
 //
 //  Serializer.swift
-//  sdp
+//  webrtc-sdp
 //
 //  Created by sunlubo on 2020/9/4.
 //  Copyright © 2020 sunlubo. All rights reserved.
@@ -73,7 +73,7 @@ extension SessionDescription.Origin {
 extension SessionDescription.ConnectionInformation {
 
   public func serialize() -> String {
-    "c=\(networkType.rawValue) \(addressType.rawValue)\(address.map({ " \($0.address)"}) ?? "")"
+    "c=\(networkType.rawValue) \(addressType.rawValue)\(address.map({ " \($0.address)" }) ?? "")"
   }
 }
 
