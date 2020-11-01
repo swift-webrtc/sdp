@@ -9,20 +9,13 @@ let package = Package(
     .library(name: "SDP", targets: ["SDP"])
   ],
   dependencies: [
-    .package(url: "https://github.com/swift-webrtc/webrtc-core.git", .branch("master")),
+    .package(name: "webrtc-core", url: "https://github.com/swift-webrtc/core.git", .branch("master"))
   ],
   targets: [
-    .target(
-      name: "SDP",
-      dependencies: [.product(name: "Core", package: "webrtc-core")]
-    ),
-    .target(
-      name: "SDPExamples",
-      dependencies: ["SDP"]
-    ),
-    .testTarget(
-      name: "SDPTests",
-      dependencies: ["SDP"]
-    ),
+    .target(name: "SDP", dependencies: [
+      .product(name: "Core", package: "webrtc-core")
+    ]),
+    .target(name: "SDPExamples", dependencies: ["SDP"]),
+    .testTarget(name: "SDPTests", dependencies: ["SDP"])
   ]
 )
